@@ -70,14 +70,3 @@ A desktop restaurant management application built with Java Swing and SQLite.
    git branch -M main
    git push -u origin main
 
-## Contributing
-
-See CONTRIBUTING.md for contribution workflow.
-
-## Security
-
-See SECURITY.md for reporting vulnerabilities.
-
-## License
-
-This project is licensed under the MIT License. See LICENSE for details.
