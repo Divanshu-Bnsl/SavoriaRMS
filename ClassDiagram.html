@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SavoriaRMS — UML Class Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #e8a020;
+    --accent2: #58a6ff;
+    --accent3: #3fb950;
+    --accent4: #ff7b72;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --class-bg: #1c2128;
+    --header-order: #1a3a2a;
+    --header-booking: #1a2a3a;
+    --header-branch: #2a1a1a;
+    --header-menuitem: #2a2a1a;
+    --header-dbhelper: #2a1a3a;
+    --header-app: #1a1a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 6px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .page-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .legend-icon {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+
+  /* ── RELATIONSHIP LINES (SVG overlay) ─────────────────────────── */
+  .diagram-wrapper {
+    position: relative;
+  }
+  .relations-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 0;
+  }
+
+  /* ── GRID ─────────────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── CLASS BOX ─────────────────────────────────────────────────── */
+  .uml-class {
+    background: var(--class-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .uml-class:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  .class-header {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .class-stereotype {
+    font-size: 10px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: 1px;
+  }
+  .class-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .class-tag {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-top: 5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    padding: 6px 16px 3px;
+    letter-spacing: 1.5px;
+    border-top: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+    text-transform: uppercase;
+  }
+
+  .member {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 16px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(48,54,61,0.4);
+  }
+  .member:last-child { border-bottom: none; }
+
+  .vis {
+    width: 14px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .vis.public  { color: var(--accent3); }
+  .vis.private { color: var(--accent4); }
+  .vis.static  { color: var(--accent2); }
+
+  .member-text { color: var(--text); }
+  .type-hint   { color: var(--text-muted); font-size: 10px; }
+
+  /* colour themes per class */
+  .Branch      .class-header { background: var(--header-branch); }
+  .Branch      .class-name   { color: #ff9f85; }
+  .Branch      .class-tag    { background: rgba(255,123,114,0.15); color: #ff9f85; border: 1px solid #ff7b7240; }
+
+  .MenuItem    .class-header { background: var(--header-menuitem); }
+  .MenuItem    .class-name   { color: #e3c567; }
+  .MenuItem    .class-tag    { background: rgba(227,197,103,0.15); color: #e3c567; border: 1px solid #e3c56740; }
+
+  .Order       .class-header { background: var(--header-order); }
+  .Order       .class-name   { color: #7ee787; }
+  .Order       .class-tag    { background: rgba(126,231,135,0.15); color: #7ee787; border: 1px solid #7ee78740; }
+
+  .Booking     .class-header { background: var(--header-booking); }
+  .Booking     .class-name   { color: #79c0ff; }
+  .Booking     .class-tag    { background: rgba(121,192,255,0.15); color: #79c0ff; border: 1px solid #79c0ff40; }
+
+  .DatabaseHelper .class-header { background: var(--header-dbhelper); }
+  .DatabaseHelper .class-name   { color: #d2a8ff; }
+  .DatabaseHelper .class-tag    { background: rgba(210,168,255,0.15); color: #d2a8ff; border: 1px solid #d2a8ff40; }
+
+  .SavoriaApp .class-header { background: var(--header-app); }
+  .SavoriaApp .class-name   { color: var(--accent); }
+  .SavoriaApp .class-tag    { background: rgba(232,160,32,0.15); color: var(--accent); border: 1px solid #e8a02040; }
+
+  /* span full width for SavoriaApp */
+  .SavoriaApp { grid-column: 1 / -1; }
+
+  /* ── RELATIONSHIPS SECTION ─────────────────────────────────────── */
+  .relationships {
+    max-width: 1100px;
+    margin: 24px auto 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+  .rel-title {
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .rel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+  }
+  .rel-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 5px;
+    border-left: 3px solid;
+  }
+  .rel-row.uses    { border-color: var(--accent2); }
+  .rel-row.extends { border-color: var(--accent3); }
+  .rel-row.has     { border-color: var(--accent);  }
+
+  .arrow { color: var(--text-muted); font-size: 14px; }
+  .rel-label { color: var(--text-muted); font-size: 10px; font-style: italic; }
+
+  /* ── OOP TABLE ─────────────────────────────────────────────────── */
+  .oop-table {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .oop-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .oop-table th {
+    background: rgba(0,0,0,0.4);
+    padding: 10px 16px;
+    text-align: left;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .oop-table td {
+    padding: 9px 16px;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    color: var(--text);
+    vertical-align: top;
+  }
+  .oop-table tr:last-child td { border-bottom: none; }
+  .oop-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(88,166,255,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(88,166,255,0.3);
+  }
+
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">⟨ SAVORIA RMS ⟩ UML Class Diagram</h1>
+<p class="page-subtitle">UPES OOP Project · Java Swing + JDBC · Academic Year 2025–2026</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-icon" style="background:rgba(126,231,135,0.2);color:#7ee787">+</div> public</div>
+  <div class="legend-item"><div class="legend-icon" style="background:rgba(255,123,114,0.2);color:#ff7b72">−</div> private</div>
+  <div class="legend-item"><div class="legend-icon" style="background:rgba(88,166,255,0.2);color:#58a6ff">≡</div> static</div>
+</div>
+
+<div class="grid">
+
+  <!-- ── Branch ──────────────────────── -->
+  <div class="uml-class Branch" id="box-branch">
+    <div class="class-header">
+      <span class="class-stereotype">«model»</span>
+      <div class="class-name">Branch</div>
+      <span class="class-tag">Encapsulation</span>
+    </div>
+    <div class="section-label">Fields</div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">branchId : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">city, name, address, phone : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">rating : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">active : <span class="type-hint">boolean</span></span></div>
+    <div class="section-label">Methods</div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">Branch(branchId, city, name, address, rating)</span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getBranchId() : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getCity(), getName(), getAddress() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getRating() : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">isActive() : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">toString() : <span class="type-hint">String</span></span></div>
+  </div>
+
+  <!-- ── MenuItem ──────────────────────── -->
+  <div class="uml-class MenuItem" id="box-menuitem">
+    <div class="class-header">
+      <span class="class-stereotype">«model»</span>
+      <div class="class-name">MenuItem</div>
+      <span class="class-tag">Encapsulation</span>
+    </div>
+    <div class="section-label">Fields</div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">itemId, branchId : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">name, category, description : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">price : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">veg, available : <span class="type-hint">boolean</span></span></div>
+    <div class="section-label">Methods</div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">MenuItem(itemId, branchId, name, category, desc, price, veg, available)</span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getItemId(), getBranchId() : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getName(), getCategory(), getDescription() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getPrice() : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">isVeg(), isAvailable() : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">setPrice(p), setAvailable(a) : <span class="type-hint">void</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">toString() : <span class="type-hint">String</span></span></div>
+  </div>
+
+  <!-- ── DatabaseHelper ──────────────────────── -->
+  <div class="uml-class DatabaseHelper" id="box-db">
+    <div class="class-header">
+      <span class="class-stereotype">«utility · abstraction»</span>
+      <div class="class-name">DatabaseHelper</div>
+      <span class="class-tag">Abstraction · Static</span>
+    </div>
+    <div class="section-label">Constants</div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">DB_URL, DB_USER, DB_PASS : <span class="type-hint">String</span></span></div>
+    <div class="section-label">CRUD Methods</div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">findBranchByCity(city) : <span class="type-hint">Branch</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">getAllBranches() : <span class="type-hint">List&lt;Branch&gt;</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">getMenuItems(branchId, cat) : <span class="type-hint">List&lt;MenuItem&gt;</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">saveOrder(order) : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">getAllOrders(branchId) : <span class="type-hint">List&lt;String[]&gt;</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">updateOrderStatus(code, status) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">deleteOrder(code) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">saveBooking(booking) : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">getAllBookings(branchId) : <span class="type-hint">List&lt;String[]&gt;</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">updateBookingStatus(code, status) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">deleteBooking(code) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">updateMenuItemPrice(id, price) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">toggleMenuItemAvailability(id, avail) : <span class="type-hint">boolean</span></span></div>
+    <div class="member"><span class="vis static">≡</span><span class="member-text">getConnection() : <span class="type-hint">Connection</span></span></div>
+  </div>
+
+  <!-- ── Order ──────────────────────── -->
+  <div class="uml-class Order" id="box-order">
+    <div class="class-header">
+      <span class="class-stereotype">«model»</span>
+      <div class="class-name">Order</div>
+      <span class="class-tag">Encapsulation</span>
+    </div>
+    <div class="section-label">Fields</div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">orderId, branchId : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">orderCode, customerName, customerPhone : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">deliveryAddress, paymentMethod, status : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">deliveryPerson, deliveryPhone : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">totalAmount : <span class="type-hint">double</span></span></div>
+    <div class="section-label">Methods</div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">Order(orderCode, branchId, customerName, ...)</span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getOrderId(), getBranchId() : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getOrderCode(), getCustomerName() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getStatus(), getPaymentMethod() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getTotalAmount() : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">setOrderId(id), setStatus(s) : <span class="type-hint">void</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">setDeliveryPerson(dp), setDeliveryPhone(dp) : <span class="type-hint">void</span></span></div>
+  </div>
+
+  <!-- ── Booking ──────────────────────── -->
+  <div class="uml-class Booking" id="box-booking">
+    <div class="class-header">
+      <span class="class-stereotype">«model»</span>
+      <div class="class-name">Booking</div>
+      <span class="class-tag">Encapsulation</span>
+    </div>
+    <div class="section-label">Fields</div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">bookingId, branchId, guests : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">bookingCode, customerName, customerPhone : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">bookingDate, slotId, slotLabel, specialRequest : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">paymentMethod, status : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis private">−</span><span class="member-text">amountPaid : <span class="type-hint">double</span></span></div>
+    <div class="section-label">Methods</div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">Booking(bookingCode, branchId, customerName, ...)</span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getBookingId(), getBranchId(), getGuests() : <span class="type-hint">int</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getBookingCode(), getCustomerName() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getBookingDate(), getSlotId(), getSlotLabel() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getAmountPaid() : <span class="type-hint">double</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">getStatus(), getPaymentMethod() : <span class="type-hint">String</span></span></div>
+    <div class="member"><span class="vis public">+</span><span class="member-text">setBookingId(id), setStatus(s) : <span class="type-hint">void</span></span></div>
+  </div>
+
+  <!-- SPACER so SavoriaApp starts on new row -->
+  <div style="display:none"></div>
+
+  <!-- ── SavoriaApp ──────────────────────── (full width) -->
+  <div class="uml-class SavoriaApp" id="box-app">
+    <div class="class-header">
+      <span class="class-stereotype">«main application · extends JFrame»</span>
+      <div class="class-name">SavoriaApp</div>
+      <span class="class-tag">Inheritance · Polymorphism · Inner Classes</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr">
+      <div>
+        <div class="section-label">UI State Fields</div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">currentBranch : <span class="type-hint">Branch</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">cart : <span class="type-hint">Map&lt;Integer,Integer&gt;</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">currentOrder : <span class="type-hint">Order</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">currentBooking : <span class="type-hint">Booking</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">menuItems : <span class="type-hint">List&lt;MenuItem&gt;</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">mainPanel, cardLayout : <span class="type-hint">JPanel / CardLayout</span></span></div>
+      </div>
+      <div>
+        <div class="section-label">Screen Methods</div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showWelcome(), showBranchSearch()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showOrderMenu(), showCart()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showPaymentOrder(), showOrderConfirmation()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showOrderTracking()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showBookingCalendar(), showTimeSlots()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showPaymentBooking(), showBookingConfirmation()</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showAdminPanel()</span></div>
+      </div>
+      <div>
+        <div class="section-label">Helper Methods</div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">createStyledButton(text, color) : <span class="type-hint">JButton</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">createCard(title) : <span class="type-hint">JPanel</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">showPanel(name) : <span class="type-hint">void</span></span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">calculateTotal() : <span class="type-hint">double</span></span></div>
+        <div class="member"><span class="vis public">+</span><span class="member-text">main(args) : <span class="type-hint">void</span></span></div>
+        <div class="section-label" style="margin-top:4px">Inner Classes</div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">GradientPanel extends JPanel</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">RoundedPanel extends JPanel</span></div>
+        <div class="member"><span class="vis private">−</span><span class="member-text">Anonymous MouseAdapters</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end grid -->
+
+<!-- Relationships -->
+<div class="relationships">
+  <div class="rel-title">▸ Class Relationships</div>
+  <div class="rel-grid">
+    <div class="rel-row extends"><span style="color:#7ee787;font-weight:700">SavoriaApp</span><span class="arrow">──extends──▶</span><span style="color:#79c0ff">JFrame</span><span class="rel-label">(Inheritance)</span></div>
+    <div class="rel-row extends"><span style="color:#7ee787;font-weight:700">GradientPanel</span><span class="arrow">──extends──▶</span><span style="color:#79c0ff">JPanel</span><span class="rel-label">(Inheritance + Polymorphism)</span></div>
+    <div class="rel-row uses"><span style="color:#e8a020;font-weight:700">SavoriaApp</span><span class="arrow">──uses──▶</span><span style="color:#d2a8ff">DatabaseHelper</span><span class="rel-label">(Dependency / Abstraction)</span></div>
+    <div class="rel-row has"><span style="color:#e8a020;font-weight:700">SavoriaApp</span><span class="arrow">──has──▶</span><span style="color:#ff9f85">Branch</span><span class="rel-label">(Aggregation)</span></div>
+    <div class="rel-row has"><span style="color:#e8a020;font-weight:700">SavoriaApp</span><span class="arrow">──has──▶</span><span style="color:#7ee787">Order</span><span class="rel-label">(Aggregation)</span></div>
+    <div class="rel-row has"><span style="color:#e8a020;font-weight:700">SavoriaApp</span><span class="arrow">──has──▶</span><span style="color:#79c0ff">Booking</span><span class="rel-label">(Aggregation)</span></div>
+    <div class="rel-row has"><span style="color:#e8a020;font-weight:700">SavoriaApp</span><span class="arrow">──has──▶</span><span style="color:#e3c567">List&lt;MenuItem&gt;</span><span class="rel-label">(Aggregation)</span></div>
+    <div class="rel-row uses"><span style="color:#d2a8ff;font-weight:700">DatabaseHelper</span><span class="arrow">──returns──▶</span><span style="color:#ff9f85">Branch / MenuItem / Order / Booking</span><span class="rel-label">(Factory-style)</span></div>
+    <div class="rel-row extends"><span style="color:#7ee787;font-weight:700">Anonymous classes</span><span class="arrow">──implements──▶</span><span style="color:#79c0ff">Runnable, MouseAdapter</span><span class="rel-label">(Interface / Polymorphism)</span></div>
+  </div>
+</div>
+
+<!-- OOP Concepts Table -->
+<div class="oop-table">
+  <table>
+    <thead>
+      <tr>
+        <th>OOP Concept</th>
+        <th>Where Used in SavoriaRMS</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pill">Encapsulation</span></td>
+        <td>All model classes: Branch, MenuItem, Order, Booking</td>
+        <td>private fields + public getters/setters only</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Inheritance</span></td>
+        <td>SavoriaApp extends JFrame; GradientPanel / RoundedPanel extend JPanel</td>
+        <td>class SavoriaApp extends JFrame</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Polymorphism</span></td>
+        <td>paintComponent() overridden in GradientPanel &amp; RoundedPanel</td>
+        <td>@Override paintComponent(Graphics g)</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Abstraction</span></td>
+        <td>DatabaseHelper hides all SQL/JDBC — UI never touches raw SQL</td>
+        <td>DatabaseHelper.saveOrder(order)</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Inner Classes</span></td>
+        <td>Anonymous event handlers for buttons, mouse events</td>
+        <td>new MouseAdapter() { … }</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Interfaces</span></td>
+        <td>Runnable used for action callbacks in UI flows</td>
+        <td>Runnable onSuccess = () → showPanel("confirm")</td>
+      </tr>
+      <tr>
+        <td><span class="pill">CRUD via JDBC</span></td>
+        <td>Full Create / Read / Update / Delete on Orders, Bookings, MenuItems</td>
+        <td>saveOrder · getAllOrders · updateOrderStatus · deleteOrder</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p class="footer">Generated for UPES OOP Capstone · SavoriaRMS v2.0 · 2025–2026</p>
+
+</body>
+</html>

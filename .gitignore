@@ -1,0 +1,56 @@
+# ------------------------------
+# Java build output
+# ------------------------------
+*.class
+*.log
+
+# ------------------------------
+# Build artifacts (local only)
+# ------------------------------
+SavoriaApp.jar
+SavoriaRMS.jar
+out/
+build/
+dist/
+target/
+
+# ------------------------------
+# IDE and OS files
+# ------------------------------
+.idea/
+.vscode/
+*.iml
+Thumbs.db
+.DS_Store
+
+# ------------------------------
+# Runtime / packaging artifacts
+# ------------------------------
+_cleanup_quarantine_*
+driver_temp/
+META-INF/
+org/
+SavoriaRMS_Final/
+SavoriaRMS_inventory.txt
+UNNECESSARY_FILES_REPORT.txt
+cleanup_unnecessary_preview.txt
+cleanup_unnecessary_safe.ps1
+
+# ------------------------------
+# Packaged JRE and nested app copy
+# Keep source repo light; publish installers via Releases instead
+# ------------------------------
+SavoriaRMS/runtime/
+SavoriaRMS/app/SavoriaRMS/
+
+# ------------------------------
+# SQLite runtime sidecars
+# ------------------------------
+*.db-wal
+*.db-shm
+
+# ------------------------------
+# Environment files
+# ------------------------------
+.env
+.env.*
